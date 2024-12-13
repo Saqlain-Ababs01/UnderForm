@@ -21,6 +21,8 @@ import {
 } from "@heroicons/react/20/solid";
 import ProductCatalogs from "./ProducCatalogs";
 import Pagination from "./Pagination";
+import { useDispatch } from "react-redux";
+import { fetchAllFilterProductsAsync } from "../../features/ProductList/ProductListSlice";
 
 const sortOptions = [
   { name: "Most Popular", href: "#", current: true },
@@ -32,26 +34,13 @@ const sortOptions = [
 
 const filters = [
   {
-    id: "color",
-    name: "Color",
-    options: [
-      { value: "white", label: "White", checked: false },
-      { value: "beige", label: "Beige", checked: false },
-      { value: "blue", label: "Blue", checked: true },
-      { value: "brown", label: "Brown", checked: false },
-      { value: "green", label: "Green", checked: false },
-      { value: "purple", label: "Purple", checked: false },
-    ],
-  },
-  {
     id: "category",
     name: "Category",
     options: [
-      { value: "new-arrivals", label: "New Arrivals", checked: false },
-      { value: "sale", label: "Sale", checked: false },
-      { value: "travel", label: "Travel", checked: true },
-      { value: "organization", label: "Organization", checked: false },
-      { value: "accessories", label: "Accessories", checked: false },
+      { value: "beauty", label: "Beauty" },
+      { value: "fragrances", label: "Fragrances" },
+      { value: "furniture", label: "Furniture" },
+      { value: "groceries", label: "Groceries" },
     ],
   },
   {
@@ -73,7 +62,15 @@ function classNames(...classes) {
 }
 
 export default function CategoryFilters() {
+  const dispatch = useDispatch();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState({});
+  const handleFilterSelect = (e, section, option) => {
+    let NewFilter = { ...selectedFilters, [section.id]: option.value };
+    setSelectedFilters(filters);
+    console.log("slected filter", filters);
+    dispatch(fetchAllFilterProductsAsync(NewFilter));
+  };
 
   return (
     <div className="bg-white">
@@ -265,6 +262,9 @@ export default function CategoryFilters() {
                               id={`filter-${section.id}-${optionIdx}`}
                               name={`${section.id}[]`}
                               type="checkbox"
+                              onChange={(e) =>
+                                handleFilterSelect(e, section, option)
+                              }
                               className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                             />
                             <label

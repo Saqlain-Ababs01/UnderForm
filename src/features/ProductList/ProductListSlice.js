@@ -1,21 +1,30 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchCount } from "./ProductListApi";
+import { fetchAllProducts, fetchFilterProducts } from "./ProductListApi";
 
 const initialState = {
-  value: 0,
+  products: [],
   status: "idle",
 };
 
-export const incrementAsync = createAsyncThunk(
-  "counter/fetchCount",
-  async (amount) => {
-    const response = await fetchCount(amount);
+export const fetchAllProductsAsync = createAsyncThunk(
+  "products/fetchAllProducts",
+  async () => {
+    const response = await fetchAllProducts();
+
     return response.data;
   }
 );
 
-export const counterSlice = createSlice({
-  name: "counter",
+export const fetchAllFilterProductsAsync = createAsyncThunk(
+  "products/fetchFilterProducts",
+  async (filter) => {
+    const response = await fetchFilterProducts(filter);
+    return response.data;
+  }
+);
+
+export const productsSlice = createSlice({
+  name: "product",
   initialState,
   reducers: {
     increment: (state) => {
@@ -24,18 +33,25 @@ export const counterSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(incrementAsync.pending, (state) => {
+      .addCase(fetchAllProductsAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(incrementAsync.fulfilled, (state, action) => {
+      .addCase(fetchAllProductsAsync.fulfilled, (state, action) => {
         state.status = "idle";
-        state.value += action.payload;
+        state.products = action.payload;
+      })
+      .addCase(fetchAllFilterProductsAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAllFilterProductsAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.products = action.payload;
       });
   },
 });
 
-export const { increment } = counterSlice.actions;
+export const { increment } = productsSlice.actions;
 
-export const selectCount = (state) => state.counter.value;
+export const selectAllProducts = (state) => state.product.products;
 
-export default counterSlice.reducer;
+export default productsSlice.reducer;
